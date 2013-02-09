@@ -5,7 +5,8 @@
 ;; ported from Processing.js to quil by Steffen Beyer
 
 (ns lcp1.animation
-  (:use quil.core))
+  (:use [clojure.set]
+        [quil.core]))
 
 ;; constants
 
@@ -27,6 +28,9 @@
 (def locked-circle (atom nil))
 (def locked-offset-x (atom nil))
 (def locked-offset-y (atom nil))
+;; set of interconnecting lines, containing sorted tuples like (4 5) (9 13)
+(def lines-last (atom #{}))
+(def lines-current (atom #{}))
 
 (defn random-circle []
   {:x (rand (width))
@@ -59,6 +63,14 @@
 (defn mouse-released []
   (reset! dragging false))
 
+(defn process-transitions []
+  ;; (println (frame-count))
+  (when (> (frame-count) 2)
+    (let [added (difference @lines-current @lines-last)
+          removed (difference @lines-last @lines-current)]
+      (if (not-empty added) (println "+" added))
+      (if (not-empty removed) (println "-" removed)))))
+
 (defn setup []
   ;; turn on anti-aliasing
   (smooth)
@@ -69,8 +81,11 @@
 
 (defn draw []
   (background 0)
+  (process-transitions)
+  (reset! lines-last @lines-current)
+  (reset! lines-current #{})
   ;; draw circles
-  (doseq [c @circles]
+  (doseq [[c idx] (map list @circles (range))]
     (no-stroke)
     (let [d (:diam c)
           r (/ d 2)]
@@ -88,9 +103,10 @@
           (fill 0 0 0 255)
           (stroke 64 128 128 255)))
       ;; interconnecting lines
-      (doseq [c2 @circles]
-        (if (< (dist (:x c) (:y c) (:x c2) (:y c2)) d)
-          (line (:x c) (:y c) (:x c2) (:y c2))))
+      (doseq [[c2 idx2] (map list @circles (range))]
+        (when (< (dist (:x c) (:y c) (:x c2) (:y c2)) d)
+          (line (:x c) (:y c) (:x c2) (:y c2))
+          (swap! lines-current conj (sort (list idx idx2)))))
       ;; dot in the center
       (no-stroke)
       (rect (- (:x c) center-dot) (- (:y c) center-dot) (* center-dot 2) (* center-dot 2))))
