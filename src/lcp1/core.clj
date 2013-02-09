@@ -1,4 +1,4 @@
-(ns proc1.core
+(ns lcp1.core
   (:use quil.core))
 
 (defn setup []
