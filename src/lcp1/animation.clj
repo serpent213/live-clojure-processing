@@ -10,7 +10,7 @@
 ;; constants
 
 ;; number of circles
-(def circle-count 60)
+(def circle-count 50)
 ;; maximum and minimum circle size
 (def max-size 200)
 (def min-size 40)
@@ -36,25 +36,16 @@
    :y-speed (- (rand 0.24) 0.12)})
 
 (defn move-circle [c]
-  ;; moved by user?
-  ; (when @dragging
-  ;   (println "locked-circle" @locked-circle)
-  ;   (println "circles" @circles))
-  ; (if (and @dragging (identical? (nth @circles @locked-circle) c))
-  ;   (assoc c
-  ;          :x (- (mouse-x) @locked-offset-x)
-  ;          :y (- (mouse-y) @locked-offset-y))
-    ;; natural movement
-    (let [r (/ (:diam c) 2)
-          new-x (+ (:x c) (:x-speed c))
-          new-y (+ (:y c) (:y-speed c))
-          wrapped-x (cond (< new-x (- r)) (+ (width) r)
-                          (> new-x (+ (width) r)) (- r)
-                          :else new-x)
-          wrapped-y (cond (< new-y (- r)) (+ (height) r)
-                          (> new-y (+ (height) r)) (- r)
-                          :else new-y)]
-      (assoc c :x wrapped-x, :y wrapped-y))) ; )
+  (let [r (/ (:diam c) 2)
+        new-x (+ (:x c) (:x-speed c))
+        new-y (+ (:y c) (:y-speed c))
+        wrapped-x (cond (< new-x (- r)) (+ (width) r)
+                        (> new-x (+ (width) r)) (- r)
+                        :else new-x)
+        wrapped-y (cond (< new-y (- r)) (+ (height) r)
+                        (> new-y (+ (height) r)) (- r)
+                        :else new-y)]
+    (assoc c :x wrapped-x, :y wrapped-y)))
 
 (defn mouse-pressed []
   ;; mouse within circle?
