@@ -6,6 +6,7 @@
 
 (ns lcp1.animation
   (:use [clojure.set]
+        [lcp1.sound]
         [quil.core]))
 
 ;; constants
@@ -63,13 +64,22 @@
 (defn mouse-released []
   (reset! dragging false))
 
+(defn transition-meta [cidx1 cidx2]
+  (let [c1 (nth @circles cidx1)
+        c2 (nth @circles cidx2)]
+    {:length (/ (dist (:x c1) (:y c1) (:x c2) (:y c2)) max-size) ;; between 0 .. 1
+     :pos (- (* (/ (+ (:x c1) (/ (- (:x c2) (:x c1)) 2)) (width)) 2) 1)})) ;; between -1 .. +1, 0 is center
+
 (defn process-transitions []
-  ;; (println (frame-count))
   (when (> (frame-count) 2)
     (let [added (difference @lines-current @lines-last)
           removed (difference @lines-last @lines-current)]
-      (if (not-empty added) (println "+" added))
-      (if (not-empty removed) (println "-" removed)))))
+      (doseq [t added]
+        (let [m (apply transition-meta t)]
+          (line-created (:length m) (:pos m))))
+      (doseq [t removed]
+        (let [m (apply transition-meta t)]
+          (line-dropped (:length m) (:pos m)))))))
 
 (defn setup []
   ;; turn on anti-aliasing
