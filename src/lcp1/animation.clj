@@ -67,7 +67,7 @@
 (defn transition-meta [cidx1 cidx2]
   (let [c1 (nth @circles cidx1)
         c2 (nth @circles cidx2)]
-    {:length (/ (dist (:x c1) (:y c1) (:x c2) (:y c2)) max-size) ;; between 0 .. 1
+    {:length (min 1.0 (/ (dist (:x c1) (:y c1) (:x c2) (:y c2)) (* 2 max-size))) ;; between 0 .. 1
      :pos (- (* (/ (+ (:x c1) (/ (- (:x c2) (:x c1)) 2)) (width)) 2) 1)})) ;; between -1 .. +1, 0 is center
 
 (defn process-transitions []

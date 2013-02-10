@@ -9,7 +9,8 @@
         velocity (int (* length 127))
         duration 500
         channel (Math/round (* (+ pos 1) 2))] ; MIDI channels 1 .. 5
-    (midi-play liveout [note] [velocity] [duration] channel)))
+    (midi-note-on liveout note velocity channel)
+    #_(midi-play liveout [note] [velocity] [duration] channel)))
 
 (defn line-dropped [length pos]
   (println "line-dropped" length pos)
@@ -17,4 +18,5 @@
         velocity (int (* length 127))
         duration 250
         channel (+ 8 (Math/round (* (+ pos 1) 2)))] ; MIDI channels 9 .. 13
-    (midi-play liveout [note] [velocity] [duration] channel)))
+    (midi-note-on liveout note velocity channel)
+    #_(midi-play liveout [note] [velocity] [duration] channel)))
